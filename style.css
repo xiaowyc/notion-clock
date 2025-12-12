@@ -1,0 +1,31 @@
+/* Reset and base styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent; /* Transparent background for Notion integration */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    overflow: hidden; /* Prevent scrollbars */
+}
+
+/* Clock styling */
+.clock {
+    font-size: 25vw; /* Responsive size based on viewport width */
+    font-weight: 700;
+    line-height: 1;
+    color: #37352f; /* Standard Notion text color (light mode) */
+    user-select: none; /* Prevent text selection */
+    cursor: default;
+    transition: color 0.3s ease;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .clock {
+        color: #d4d4d4; /* Notion text color (dark mode) */
+    }
+}
