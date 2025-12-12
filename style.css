@@ -1,5 +1,6 @@
 /* Reset and base styles */
-body, html {
+body,
+html {
     margin: 0;
     padding: 0;
     width: 100%;
@@ -19,11 +20,12 @@ body, html {
     --text-color-dark: #d4d4d4;
     --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --shadow-dark: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-    
+
     /* Config */
-    --font-size: 20vw;
-    --card-width: 1.4em; /* Relative to font-size */
-    --card-height: 1.1em;
+    --font-size: 18vw;
+    --card-width: 1.5em;
+    /* Adjusted to be square */
+    --card-height: 1.5em;
     --border-radius: 0.1em;
     --anim-speed: 0.6s;
 }
@@ -39,7 +41,8 @@ body, html {
 }
 
 .separator {
-    padding-bottom: 0.1em; /* Visual adjustment */
+    padding-bottom: 0.1em;
+    /* Visual adjustment */
     animation: blink 2s infinite;
 }
 
@@ -55,7 +58,10 @@ body, html {
 }
 
 /* Shared Card Styles */
-.static-top, .static-bottom, .flipper-front, .flipper-back {
+.static-top,
+.static-bottom,
+.flipper-front,
+.flipper-back {
     position: absolute;
     left: 0;
     width: 100%;
@@ -65,36 +71,47 @@ body, html {
     color: var(--text-color-light);
     text-align: center;
     box-shadow: var(--shadow-light);
-    box-sizing: border-box; /* Important for borders/padding */
+    box-sizing: border-box;
+    /* Important for borders/padding */
 }
 
 /* Positioning the number inside the halves */
 /* We use a pseudo-element or just the text. 
    Since text alignment vertical is hard with overflow hidden, we position the line-height. */
-.static-top, .static-bottom, .flipper-front, .flipper-back {
+.static-top,
+.static-bottom,
+.flipper-front,
+.flipper-back {
     display: flex;
     justify-content: center;
     /* No align-items center, we control vertical pos manually */
 }
 
 /* Top Halves */
-.static-top, .flipper-front {
+.static-top,
+.flipper-front {
     top: 0;
     border-radius: var(--border-radius) var(--border-radius) 0 0;
-    border-bottom: 1px solid rgba(0,0,0,0.1); /* Divider line */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    /* Divider line */
 }
 
-.static-top::after, .flipper-front::after, 
-.static-bottom::after, .flipper-back::after {
-    content: attr(data-val); /* Use JS to set data-val attribute for content */
+.static-top::after,
+.flipper-front::after,
+.static-bottom::after,
+.flipper-back::after {
+    content: attr(data-val);
+    /* Use JS to set data-val attribute for content */
     position: absolute;
     left: 0;
     width: 100%;
-    height: 200%; /* Double height to fit full number */
+    height: 200%;
+    /* Double height to fit full number */
 }
 
 /* Top Half Inner Positioning */
-.static-top::after, .flipper-front::after {
+.static-top::after,
+.flipper-front::after {
     top: 0;
     display: flex;
     justify-content: center;
@@ -102,7 +119,8 @@ body, html {
 }
 
 /* Bottom Halves */
-.static-bottom, .flipper-back {
+.static-bottom,
+.flipper-back {
     bottom: 0;
     border-radius: 0 0 var(--border-radius) var(--border-radius);
     line-height: 0;
@@ -110,7 +128,8 @@ body, html {
 
 /* Bottom Half Inner Positioning */
 /* The key is moving the text UP */
-.static-bottom::after, .flipper-back::after {
+.static-bottom::after,
+.flipper-back::after {
     bottom: 0;
     display: flex;
     justify-content: center;
@@ -123,15 +142,18 @@ body, html {
     top: 0;
     left: 0;
     width: 100%;
-    height: 50%; /* It occupies the top half initially */
-    transform-origin: bottom; /* Rotates around its bottom edge (the middle of the card) */
+    height: 50%;
+    /* It occupies the top half initially */
+    transform-origin: bottom;
+    /* Rotates around its bottom edge (the middle of the card) */
     transform-style: preserve-3d;
     z-index: 10;
 }
 
 /* Faces of the Flipper */
 .flipper-front {
-    height: 100%; /* Matches flipper height (50% of total) */
+    height: 100%;
+    /* Matches flipper height (50% of total) */
     width: 100%;
     backface-visibility: hidden;
     z-index: 2;
@@ -154,7 +176,8 @@ body, html {
        Correct. If Front is Up, Back is Down.
        So we transform rotateX(180) to place it.
     */
-    top: 0; /* It's inside the top flipper container */
+    top: 0;
+    /* It's inside the top flipper container */
 }
 
 /* Animation Class */
@@ -166,14 +189,22 @@ body, html {
     0% {
         transform: rotateX(0deg);
     }
+
     100% {
         transform: rotateX(-180deg);
     }
 }
 
 @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
 }
 
 /* Dark Mode */
@@ -183,9 +214,11 @@ body, html {
         --card-bg-light: var(--card-bg-dark);
         --shadow-light: var(--shadow-dark);
     }
+
     /* Adjust divider line for dark mode */
-    .static-top, .flipper-front {
-        border-bottom: 1px solid rgba(255,255,255,0.1);
+    .static-top,
+    .flipper-front {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 }
 
@@ -194,30 +227,41 @@ body, html {
    Actually, it's easier to put the text IN the div and style it.
    Let's revise to standard text inside div. */
 
-.static-top, .static-bottom, .flipper-front, .flipper-back {
-    display: block; /* content is text */
+.static-top,
+.static-bottom,
+.flipper-front,
+.flipper-back {
+    display: block;
+    /* content is text */
     /* Remove ::after stuff */
 }
-.static-top::after, .flipper-front::after, 
-.static-bottom::after, .flipper-back::after {
+
+.static-top::after,
+.flipper-front::after,
+.static-bottom::after,
+.flipper-back::after {
     display: none;
 }
 
 /* Re-apply text positioning */
-.static-top span, .flipper-front span {
+.static-top span,
+.flipper-front span {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 200%; /* 2x height */
+    height: 200%;
+    /* 2x height */
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.static-bottom span, .flipper-back span {
+.static-bottom span,
+.flipper-back span {
     position: absolute;
-    top: -100%; /* Move up by 1 height (which is 100% of parent, parent is half card) = -100%? 
+    top: -100%;
+    /* Move up by 1 height (which is 100% of parent, parent is half card) = -100%? 
                    No. Parent is 50% of card. Item is 200% of parent (100% of card).
                    We need to show the BOTTOM half.
                    So the TOP of the span should be at -100% of parent height.
