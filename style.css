@@ -7,25 +7,225 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: transparent; /* Transparent background for Notion integration */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    overflow: hidden; /* Prevent scrollbars */
+    background-color: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
 }
 
-/* Clock styling */
+:root {
+    --card-bg-light: #ffffff;
+    --text-color-light: #37352f;
+    --card-bg-dark: #2f3437;
+    --text-color-dark: #d4d4d4;
+    --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-dark: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    
+    /* Config */
+    --font-size: 20vw;
+    --card-width: 1.4em; /* Relative to font-size */
+    --card-height: 1.1em;
+    --border-radius: 0.1em;
+    --anim-speed: 0.6s;
+}
+
 .clock {
-    font-size: 25vw; /* Responsive size based on viewport width */
+    display: flex;
+    align-items: center;
+    gap: 0.2em;
+    font-size: var(--font-size);
     font-weight: 700;
     line-height: 1;
-    color: #37352f; /* Standard Notion text color (light mode) */
-    user-select: none; /* Prevent text selection */
-    cursor: default;
-    transition: color 0.3s ease;
+    color: var(--text-color-light);
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    .clock {
-        color: #d4d4d4; /* Notion text color (dark mode) */
+.separator {
+    padding-bottom: 0.1em; /* Visual adjustment */
+    animation: blink 2s infinite;
+}
+
+/* Flip Unit Structure */
+.flip-unit {
+    position: relative;
+    width: var(--card-width);
+    height: var(--card-height);
+    background: transparent;
+    perspective: 200vw;
+    border-radius: var(--border-radius);
+    /* Ensure only the card content is visible if needed, but shadows might need overflow */
+}
+
+/* Shared Card Styles */
+.static-top, .static-bottom, .flipper-front, .flipper-back {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    overflow: hidden;
+    background-color: var(--card-bg-light);
+    color: var(--text-color-light);
+    text-align: center;
+    box-shadow: var(--shadow-light);
+    box-sizing: border-box; /* Important for borders/padding */
+}
+
+/* Positioning the number inside the halves */
+/* We use a pseudo-element or just the text. 
+   Since text alignment vertical is hard with overflow hidden, we position the line-height. */
+.static-top, .static-bottom, .flipper-front, .flipper-back {
+    display: flex;
+    justify-content: center;
+    /* No align-items center, we control vertical pos manually */
+}
+
+/* Top Halves */
+.static-top, .flipper-front {
+    top: 0;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    border-bottom: 1px solid rgba(0,0,0,0.1); /* Divider line */
+}
+
+.static-top::after, .flipper-front::after, 
+.static-bottom::after, .flipper-back::after {
+    content: attr(data-val); /* Use JS to set data-val attribute for content */
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 200%; /* Double height to fit full number */
+}
+
+/* Top Half Inner Positioning */
+.static-top::after, .flipper-front::after {
+    top: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Bottom Halves */
+.static-bottom, .flipper-back {
+    bottom: 0;
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+    line-height: 0;
+}
+
+/* Bottom Half Inner Positioning */
+/* The key is moving the text UP */
+.static-bottom::after, .flipper-back::after {
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* The Flipper Wrapper */
+.flipper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50%; /* It occupies the top half initially */
+    transform-origin: bottom; /* Rotates around its bottom edge (the middle of the card) */
+    transform-style: preserve-3d;
+    z-index: 10;
+}
+
+/* Faces of the Flipper */
+.flipper-front {
+    height: 100%; /* Matches flipper height (50% of total) */
+    width: 100%;
+    backface-visibility: hidden;
+    z-index: 2;
+    top: 0;
+}
+
+.flipper-back {
+    height: 100%;
+    width: 100%;
+    backface-visibility: hidden;
+    transform: rotateX(180deg);
+    z-index: 1;
+    /* Flipper back usually needs to represent the BOTTOM half. 
+       But physically it's on the "back" of the top card.
+       When it flips 180deg down, it will display upside down unless we pre-rotate or adjust.
+       Wait!
+       If I rotateX(-180deg), the top edge becomes bottom.
+       The content must be the BOTTOM half of the number.
+       Standard behavior: Back face is upside down relative to Front face?
+       Correct. If Front is Up, Back is Down.
+       So we transform rotateX(180) to place it.
+    */
+    top: 0; /* It's inside the top flipper container */
+}
+
+/* Animation Class */
+.flipper.augment {
+    animation: flip-down var(--anim-speed) ease-in-out forwards;
+}
+
+@keyframes flip-down {
+    0% {
+        transform: rotateX(0deg);
     }
+    100% {
+        transform: rotateX(-180deg);
+    }
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text-color-light: var(--text-color-dark);
+        --card-bg-light: var(--card-bg-dark);
+        --shadow-light: var(--shadow-dark);
+    }
+    /* Adjust divider line for dark mode */
+    .static-top, .flipper-front {
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+}
+
+/* Helper for content injection via JS */
+/* We simply change textContent of the nodes in JS. The ::after trick needs content in attribute. 
+   Actually, it's easier to put the text IN the div and style it.
+   Let's revise to standard text inside div. */
+
+.static-top, .static-bottom, .flipper-front, .flipper-back {
+    display: block; /* content is text */
+    /* Remove ::after stuff */
+}
+.static-top::after, .flipper-front::after, 
+.static-bottom::after, .flipper-back::after {
+    display: none;
+}
+
+/* Re-apply text positioning */
+.static-top span, .flipper-front span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 200%; /* 2x height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.static-bottom span, .flipper-back span {
+    position: absolute;
+    top: -100%; /* Move up by 1 height (which is 100% of parent, parent is half card) = -100%? 
+                   No. Parent is 50% of card. Item is 200% of parent (100% of card).
+                   We need to show the BOTTOM half.
+                   So the TOP of the span should be at -100% of parent height.
+                */
+    left: 0;
+    width: 100%;
+    height: 200%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
